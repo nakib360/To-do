@@ -1,14 +1,19 @@
 import { Outlet } from "react-router";
+import axios from "axios";
 import Nav from "./Nav";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Main = () => {
     const [createPopUp, setCreatePopUp] = useState(false);
     const newToDoName = async (e) => {
         await e.preventDefault();
-        const newToDo = e.target.toDoName.value;
-        await console.log(newToDo);
-        await setCreatePopUp(false);
+        const newToDoName = e.target.toDoName.value;
+        const newToDo = {
+            name: newToDoName,
+        }
+        const res = axios.post("http://127.0.0.1:4000/todo", newToDo)
+        console.log(res);
+        setCreatePopUp(false);
     }
     return (
         <div className="relative bg-black min-h-screen text-white grid grid-cols-12">

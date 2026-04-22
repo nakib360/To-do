@@ -29,13 +29,18 @@ async function run() {
 
     app.post("/todo", async (req, res) => {
       const newToDo = req.body;
+
+      if(newToDo.name === ""){
+        return
+      }
+
       const result = await allToDoDB.insertOne(newToDo);
 
       res.send(result);
     });
 
     app.get("/todo", async (req, res) => {
-      const result = await allToDoDB.find();
+      const result = await allToDoDB.find().toArray();
 
       res.send(result);
     })
