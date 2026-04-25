@@ -3,7 +3,7 @@ const cors = require('cors');
 const app = express();
 require("dotenv").config();
 const port = process.env.PORT || 4000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = process.env.URI;
 
 app.use(cors());
@@ -44,6 +44,32 @@ async function run() {
 
       res.send(result);
     })
+
+    app.get("/todo/:id", async (req, res) => {
+      const id = req.params.id
+      const query = {_id : new ObjectId(id)};
+      const result = await allToDoDB.findOne(query);
+
+      res.send(result);
+    })
+
+    app.put("/todo/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const newToDo = req.body;
+
+      const updateDoc = {
+        $push : {
+          toDos: newToDo
+        }
+      }
+
+      const result = await allToDoDB.updateOne(query, updateDoc);
+
+      res.send(result);
+    });
+
+    
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
