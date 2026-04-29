@@ -2,9 +2,18 @@ const express = require("express");
 const cors = require('cors');
 const app = express();
 require("dotenv").config();
+const http = require("http");
+const {Server} = require("socket.io");
 const port = process.env.PORT || 4000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = process.env.URI;
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PATCH", "PUT"]
+  }
+})
 
 app.use(cors());
 app.use(express.json());
@@ -27,12 +36,22 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
     const allToDoDB = client.db("ToDoDB").collection("allToDos");
 
+    io.on("connection", (socket) => {
+      console.log("A user connected:", socket.id);
+
+      socket.on("disconnect", () => {
+        console.log("User disconnected");
+      });
+    });
+
     app.post("/todo", async (req, res) => {
       const newToDo = req.body;
 
       if(newToDo.name === ""){
         return
       }
+
+      io.emit("todo-added", newToDo);
 
       const result = await allToDoDB.insertOne(newToDo);
 
